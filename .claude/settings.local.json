@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm --version)",
+      "Read(//opt/homebrew/bin/**)",
+      "Read(//usr/local/bin/**)",
+      "Bash(brew list *)",
+      "Bash(python3 -c ' *)",
+      "Bash(python3 -m pip install --user --quiet pyyaml)",
+      "Bash(python3 -m compileall -q backend/app backend/scripts backend/alembic/env.py backend/alembic/versions agent/renderstudio_agent)",
+      "Bash(pnpm install *)",
+      "Bash(pnpm --filter frontend typecheck)",
+      "Bash(pnpm -r list --depth 0)",
+      "Bash(pnpm --filter renderstudio-frontend typecheck)",
+      "Bash(pnpm --filter renderstudio-frontend build)"
+    ]
+  }
+}

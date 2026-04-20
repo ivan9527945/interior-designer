@@ -1,0 +1,46 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: renderstudio
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "200m"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - renderstudio.internal.company.com
+        - api.renderstudio.internal
+        - storage.renderstudio.internal
+      secretName: renderstudio-tls
+  rules:
+    - host: renderstudio.internal.company.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: renderstudio-frontend
+                port:
+                  number: 80
+    - host: api.renderstudio.internal
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: renderstudio-api
+                port:
+                  number: 80
+    - host: storage.renderstudio.internal
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: minio
+                port:
+                  number: 9000

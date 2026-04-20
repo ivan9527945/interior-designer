@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://renderstudio.internal/schemas/style.json",
+  "title": "StyleSchema",
+  "description": "Placeholder — run `make sync-schema` to regenerate from backend Pydantic model.",
+  "type": "object",
+  "properties": {},
+  "x-generated-by": "placeholder",
+  "x-source-of-truth": "backend/app/schemas/style.py"
+}

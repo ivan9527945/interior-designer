@@ -1,0 +1,8 @@
+{
+  "name": "standard",
+  "resolution": [1920, 1080],
+  "samples": 16,
+  "gi": true,
+  "denoiser": true,
+  "description": "標準畫質 — 日常提案"
+}

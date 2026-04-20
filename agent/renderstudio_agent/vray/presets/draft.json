@@ -1,0 +1,8 @@
+{
+  "name": "draft",
+  "resolution": [1280, 720],
+  "samples": 4,
+  "gi": false,
+  "denoiser": false,
+  "description": "草圖畫質 — 秒出預覽"
+}

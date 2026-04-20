@@ -1,0 +1,65 @@
+# ============== Python ==============
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+ENV/
+*.egg-info/
+*.egg
+build/
+dist/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+.tox/
+
+# ============== Node / pnpm ==============
+node_modules/
+.pnpm-store/
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+
+# ============== Next.js ==============
+.next/
+out/
+next-env.d.ts
+.vercel/
+
+# ============== Rust ==============
+target/
+Cargo.lock
+
+# ============== Env / Secrets ==============
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# ============== OS ==============
+.DS_Store
+Thumbs.db
+
+# ============== Editor ==============
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ============== RenderStudio ==============
+# Local MinIO data
+.minio-data/
+# Agent local queue cache
+.agent-cache/
+# PyInstaller artifacts
+agent/installer/build/
+agent/installer/dist/
+# Alembic autogen temp
+backend/alembic/versions/*_autogen_*.py

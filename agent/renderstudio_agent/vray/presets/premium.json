@@ -1,0 +1,8 @@
+{
+  "name": "premium",
+  "resolution": [3840, 2160],
+  "samples": 64,
+  "gi": true,
+  "denoiser": true,
+  "description": "精品畫質 — 業主最終簡報"
+}
