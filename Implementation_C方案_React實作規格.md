@@ -822,27 +822,27 @@ CREATE INDEX idx_agents_heartbeat ON agents(last_heartbeat_at);
 
 **後端**
 
-- [ ] Anthropic SDK 整合 + 環境變數
-- [ ] `POST /style/parse/text` + prompt 範本
-- [ ] `POST /style/parse/visual` 含多圖支援（Vision）
-- [ ] StyleSchema 驗證與 clamp（AI 出界值自動修正）
-- [ ] 預設風格庫 seed script（7 個基礎風）
-- [ ] `/styles` CRUD
-- [ ] Style cache（相同文字描述走 Redis cache 24hr）
+- [x] Anthropic SDK 整合 + 環境變數
+- [x] `POST /style/parse/text` + prompt 範本
+- [x] `POST /style/parse/visual` 含多圖支援（Vision，base64）
+- [x] StyleSchema 驗證與 clamp（AI 出界值自動修正）
+- [x] 預設風格庫 seed script（7 個基礎風）
+- [x] `/styles` CRUD
+- [x] Style cache（相同文字描述走 Redis cache 24hr，fallback 記憶體）
 
 **前端**
 
-- [ ] `/projects/[id]/spaces/[sid]/style/` 頁 3-tab
-- [ ] `PresetGrid` 接真 API
-- [ ] `TextStyleInput`：輸入 → 呼叫 API → 顯示 `SchemaPreview`
-- [ ] `VisualStyleInput`：多圖上傳 + 預覽
-- [ ] `SchemaPreview`：色票/材質/燈光可編輯，表單綁 StyleSchema Zod
+- [x] `/projects/[id]/spaces/[sid]/style/` 頁 3-tab
+- [x] `PresetGrid` 接真 API
+- [x] `TextStyleInput`：輸入 → 呼叫 API → 顯示 `SchemaPreview`
+- [x] `VisualStyleInput`：多圖上傳 + 縮圖預覽
+- [x] `SchemaPreview`：色票/材質/燈光可編輯，表單綁 StyleSchema Zod
 
 **Agent**
 
-- [ ] 材質庫同步機制（啟動時從 MinIO pull）
-- [ ] StyleSchema → V-Ray 參數的 adapter
-- [ ] 家具擺放初版（固定位置，以房間類型判斷）
+- [x] 材質庫同步機制（啟動時呼叫 `/materials/list`，graceful fallback）
+- [x] StyleSchema → V-Ray 參數的 adapter
+- [x] 家具擺放初版（依 furniture_language + room_type 擺放，含 construction point marker）
 
 **Gate：** 設計師用文字描述、或拖一張 IG 圖，都能看到有合理風格的渲染結果。
 

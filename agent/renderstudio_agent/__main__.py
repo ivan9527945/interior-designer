@@ -175,6 +175,12 @@ async def main() -> None:
     client = ApiClient()
     agent_id = await register_or_resume(client)
 
+    try:
+        from renderstudio_agent.sketchup.asset_sync import sync_materials  # noqa: PLC0415
+        await sync_materials()
+    except Exception as _e:
+        log.warning("sync_materials_failed", error=str(_e))
+
     diag_server = await start_diag_server()
     heartbeat_task = asyncio.create_task(heartbeat_loop(client, agent_id))
 

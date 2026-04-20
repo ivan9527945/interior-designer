@@ -1,5 +1,8 @@
 """Style Engine — Claude tool-use 呼叫。有 API key 時呼叫真 Claude；否則 fixture fallback。"""
 
+import hashlib
+import json
+
 import structlog
 
 from app.config import get_settings
@@ -39,8 +42,34 @@ def _clamp(schema: dict) -> dict:
     return schema
 
 
+async def _get_redis():
+    """取得 Redis 連線；失敗回傳 None。"""
+    try:
+        import redis.asyncio as aioredis  # noqa: PLC0415
+
+        client = aioredis.from_url(get_settings().REDIS_URL, decode_responses=True)
+        await client.ping()
+        return client
+    except Exception as e:
+        log.warning("style_engine_redis_unavailable", error=str(e))
+        return None
+
+
 async def parse_text_style(description: str) -> StyleSchema:
     settings = get_settings()
+
+    # --- Redis cache ---
+    cache_key = "style:text:" + hashlib.sha256(description.encode()).hexdigest()
+    redis = await _get_redis()
+    if redis is not None:
+        try:
+            cached = await redis.get(cache_key)
+            if cached:
+                log.info("style_engine_cache_hit", key=cache_key)
+                return StyleSchema.model_validate(json.loads(cached))
+        except Exception as e:
+            log.warning("style_engine_redis_get_failed", error=str(e))
+
     if not settings.ANTHROPIC_API_KEY:
         log.info("style_engine_fixture_fallback", reason="no_api_key")
         return _FIXTURE
@@ -64,23 +93,39 @@ async def parse_text_style(description: str) -> StyleSchema:
         )
         tool_use = next(b for b in resp.content if b.type == "tool_use")
         raw = _clamp(dict(tool_use.input))
-        return StyleSchema.model_validate(raw)
+        result = StyleSchema.model_validate(raw)
+
+        # 存入 cache
+        if redis is not None:
+            try:
+                await redis.set(cache_key, result.model_dump_json(), ex=86400)
+            except Exception as e:
+                log.warning("style_engine_redis_set_failed", error=str(e))
+
+        return result
     except Exception as e:
         log.warning("style_engine_claude_failed_fallback", error=str(e))
         return _FIXTURE
 
 
-async def parse_visual_style(description: str, image_urls: list[str]) -> StyleSchema:
+async def parse_visual_style(description: str, base64_images: list[str]) -> StyleSchema:
     settings = get_settings()
-    if not settings.ANTHROPIC_API_KEY or not image_urls:
+    if not settings.ANTHROPIC_API_KEY or not base64_images:
         return _FIXTURE
 
     from anthropic import AsyncAnthropic  # noqa: PLC0415
 
     client = AsyncAnthropic(api_key=settings.ANTHROPIC_API_KEY)
     content: list[dict] = []
-    for url in image_urls:
-        content.append({"type": "image", "source": {"type": "url", "url": url}})
+    for b64 in base64_images:
+        content.append({
+            "type": "image",
+            "source": {
+                "type": "base64",
+                "media_type": "image/jpeg",
+                "data": b64,
+            },
+        })
     content.append({
         "type": "text",
         "text": "依照圖片風格與以下描述，輸出 StyleSchema。描述：" + description,

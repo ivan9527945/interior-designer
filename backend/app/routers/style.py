@@ -1,6 +1,8 @@
+import base64
+from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException, UploadFile, status
+from fastapi import APIRouter, File, Form, HTTPException, UploadFile, status
 from sqlalchemy import select
 
 from app.deps import CurrentUserDep, DbSession
@@ -10,11 +12,6 @@ from app.schemas.style import StyleSchema
 from app.services.style_engine import parse_text_style, parse_visual_style
 
 router = APIRouter(tags=["style"])
-
-
-class TextStyleRequest:
-    def __init__(self, description: str):
-        self.description = description
 
 
 from pydantic import BaseModel  # noqa: E402
@@ -30,9 +27,16 @@ async def parse_text(body: TextStyleBody, user: CurrentUserDep) -> StyleSchema:
 
 
 @router.post("/style/parse/visual", response_model=StyleSchema)
-async def parse_visual(description: str, images: list[UploadFile], user: CurrentUserDep) -> StyleSchema:
-    # Sprint 3: upload images → MinIO → Claude Vision
-    return await parse_visual_style(description, [])
+async def parse_visual(
+    description: Annotated[str, Form()],
+    images: Annotated[list[UploadFile], File()],
+    user: CurrentUserDep,
+) -> StyleSchema:
+    base64_images: list[str] = []
+    for img in images:
+        raw_bytes = await img.read()
+        base64_images.append(base64.b64encode(raw_bytes).decode("utf-8"))
+    return await parse_visual_style(description, base64_images)
 
 
 @router.get("/styles", response_model=list[StyleOut])

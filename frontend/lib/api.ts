@@ -82,6 +82,14 @@ export const stylesApi = {
   list: (kind?: string) => api.get<StyleRecord[]>("/styles", { params: kind ? { kind } : {} }).then((r) => r.data),
   create: (body: { name: string; kind: string; schema_json: Record<string, unknown> }) =>
     api.post<StyleRecord>("/styles", body).then((r) => r.data),
+  parseText: (description: string) =>
+    api.post<Record<string, unknown>>("/style/parse/text", { description }).then((r) => r.data),
+  parseVisual: (description: string, images: File[]) => {
+    const form = new FormData();
+    form.append("description", description);
+    images.forEach((img) => form.append("images", img));
+    return api.post<Record<string, unknown>>("/style/parse/visual", form).then((r) => r.data);
+  },
 };
 
 export interface AgentStatusResponse {
