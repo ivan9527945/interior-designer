@@ -1,0 +1,2 @@
+# RenderStudio 每日備份 — 每天凌晨 3:00
+0 3 * * * /opt/renderstudio/infra/backup.sh >> /var/log/renderstudio-backup.log 2>&1

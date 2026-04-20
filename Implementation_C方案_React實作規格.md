@@ -865,12 +865,20 @@ CREATE INDEX idx_agents_heartbeat ON agents(last_heartbeat_at);
 
 ### Sprint 5 — 上線（第 11 週）
 
-- [ ] 全公司設計師登入測試
-- [ ] 寫使用手冊（Notion / 公司 Wiki）
-- [ ] 辦 45 分鐘 hands-on 訓練
-- [ ] 監控告警（Grafana dashboard + PagerDuty）
-- [ ] 備份機制（Postgres + MinIO 每日快照）
-- [ ] 正式 launch + 首週貼身支援
+- [ ] 全公司設計師登入測試（人工流程）
+- [x] 寫使用手冊（docs/UserManual.md）
+- [ ] 辦 45 分鐘 hands-on 訓練（人工流程）
+- [x] 監控告警（infra/prometheus.yml + alert_rules.yml + Grafana dashboard JSON）
+- [x] 備份機制（infra/backup.sh + crontab.txt，Postgres pg_dump + MinIO mc mirror，7 天保留）
+- [ ] 正式 launch + 首週貼身支援（人工流程）
+
+**效能優化（Sprint 4 遺留）**
+- [x] next.config.js — output:standalone, Next.js Image 優化, 安全性 headers, 靜態資源長期快取
+- [x] gallery 圖片改 next/image（fill + sizes）
+- [x] backend /metrics endpoint（Prometheus text format）
+- [x] GitHub Actions build-and-push job（GHCR Docker image）
+- [x] frontend/Dockerfile multi-stage build
+- [x] docs/Runbook.md 值班手冊
 
 ---
 

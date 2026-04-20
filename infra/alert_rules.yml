@@ -1,0 +1,57 @@
+groups:
+  - name: renderstudio.alerts
+    rules:
+      # API 服務下線超過 1 分鐘
+      - alert: APIDown
+        expr: up{job="renderstudio-api"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "RenderStudio API 無法連線"
+          description: "renderstudio-api job 已超過 1 分鐘無法 scrape，請立即檢查。"
+
+      # 渲染佇列積壓：pending 狀態超過 50 筆
+      - alert: RenderQueueBacklog
+        expr: render_jobs_total{status="pending"} > 50
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "渲染佇列積壓過多"
+          description: "pending 狀態的渲染任務目前為 {{ $value }} 筆，超過閾值 50。"
+
+      # 5 分鐘內渲染錯誤超過 5 個
+      - alert: RenderErrorRateHigh
+        expr: increase(render_jobs_total{status="error"}[5m]) > 5
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: "渲染錯誤率過高"
+          description: "過去 5 分鐘內渲染錯誤數為 {{ $value }}，超過閾值 5。"
+
+      # 磁碟可用空間低於 10 GB
+      - alert: DiskSpaceLow
+        expr: node_filesystem_avail_bytes{fstype!~"tmpfs|overlay"} < 10 * 1024 * 1024 * 1024
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "磁碟剩餘空間不足"
+          description: "掛載點 {{ $labels.mountpoint }} 可用空間為 {{ $value | humanize }}，低於 10 GB。"
+
+      # CPU 使用率 5 分鐘平均超過 90%
+      - alert: HighCPU
+        expr: >
+          (
+            1 - avg by (instance) (
+              rate(node_cpu_seconds_total{mode="idle"}[5m])
+            )
+          ) * 100 > 90
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "CPU 使用率過高"
+          description: "實例 {{ $labels.instance }} 的 5 分鐘平均 CPU 使用率為 {{ $value | printf \"%.1f\" }}%，超過 90%。"

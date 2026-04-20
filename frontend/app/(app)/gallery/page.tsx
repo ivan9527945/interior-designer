@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import { rendersApi, type RenderRecord } from "@/lib/api";
 
@@ -15,8 +16,16 @@ function RenderCard({ render }: { render: RenderRecord }) {
   return (
     <Link href={`/gallery/${render.id}`} className="group block rounded-lg border overflow-hidden hover:shadow-md transition-shadow">
       {previewUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={previewUrl} alt="渲染結果" className="w-full aspect-video object-cover group-hover:opacity-95 transition-opacity" />
+        /* 使用 fill 模式：外層容器設定 aspect-ratio，Image 自動填滿 */
+        <div className="relative w-full aspect-video">
+          <Image
+            src={previewUrl}
+            alt="渲染結果"
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            className="object-cover group-hover:opacity-95 transition-opacity"
+          />
+        </div>
       ) : (
         <div className="w-full aspect-video bg-muted flex items-center justify-center text-xs text-muted-foreground">
           無預覽圖

@@ -46,3 +46,15 @@ app.include_router(share.router)
 @app.get("/healthz", tags=["system"])
 async def healthz():
     return {"status": "ok", "version": app.version}
+
+
+@app.get("/metrics", include_in_schema=False)
+async def metrics():
+    from fastapi.responses import PlainTextResponse
+    # 簡單的自訂 metrics（Prometheus text format）
+    lines = [
+        "# HELP renderstudio_up API is up",
+        "# TYPE renderstudio_up gauge",
+        "renderstudio_up 1",
+    ]
+    return PlainTextResponse("\n".join(lines))
