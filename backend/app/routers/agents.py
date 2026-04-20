@@ -1,42 +1,102 @@
+import secrets
+from datetime import UTC, datetime
+from uuid import UUID
+
 from fastapi import APIRouter, HTTPException, status
 
 from app.deps import DbSession
+from app.models.agent import Agent
+from app.models.file import File
+from app.models.render import Render
 from app.schemas.common import (
     AgentHeartbeat,
     AgentRegisterRequest,
     AgentRegisterResponse,
+    JobOutput,
     JobReport,
 )
 from app.services.job_dispatcher import pop
+from app.services.sse_broker import publish
 
 router = APIRouter(prefix="/agent", tags=["agent"])
 
 
-@router.post("/register", response_model=AgentRegisterResponse)
+@router.post("/register", response_model=AgentRegisterResponse, status_code=status.HTTP_201_CREATED)
 async def register(body: AgentRegisterRequest, db: DbSession):
-    # TODO (Sprint 2): INSERT agents，發 token
-    raise HTTPException(status.HTTP_501_NOT_IMPLEMENTED)
+    token = secrets.token_urlsafe(32)
+    agent = Agent(
+        machine_name=body.machineName,
+        os_version=body.osVersion,
+        sketchup_version=body.sketchupVersion,
+        vray_version=body.vrayVersion,
+        gpu=body.gpu,
+        token=token,
+        last_heartbeat_at=datetime.now(UTC),
+    )
+    db.add(agent)
+    await db.commit()
+    await db.refresh(agent)
+    return AgentRegisterResponse(agentId=agent.id, token=token)
 
 
 @router.post("/heartbeat")
 async def heartbeat(body: AgentHeartbeat, db: DbSession):
-    # TODO (Sprint 2): UPDATE agents SET last_heartbeat_at=now()
-    raise HTTPException(status.HTTP_501_NOT_IMPLEMENTED)
+    agent = await db.get(Agent, body.agentId)
+    if not agent:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Agent not found")
+    agent.last_heartbeat_at = datetime.now(UTC)
+    await db.commit()
+    return {"ok": True}
 
 
 @router.get("/next-job")
 async def next_job():
-    """Long-poll 取任務。骨架版立刻回 null。"""
     job = await pop()
-    return job  # None or dict
+    if job is None:
+        return None
+    return job
 
 
 @router.post("/job/{job_id}/report")
-async def report_job(job_id: str, body: JobReport):
-    # TODO (Sprint 2): UPDATE renders + publish SSE event
-    raise HTTPException(status.HTTP_501_NOT_IMPLEMENTED)
+async def report_job(job_id: UUID, body: JobReport, db: DbSession):
+    render = await db.get(Render, job_id)
+    if not render:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Render not found")
+
+    render.status = body.status
+    if body.percent is not None:
+        render.phase_percent = body.percent
+    if body.error:
+        render.error_message = body.error
+    if body.status in ("completed", "error", "cancelled") and not render.finished_at:
+        render.finished_at = datetime.now(UTC)
+    if body.status == "assigned" and not render.started_at:
+        render.started_at = datetime.now(UTC)
+
+    await db.commit()
+
+    await publish(str(job_id), {
+        "event": body.status if body.status in ("completed", "error", "cancelled") else "progress",
+        "data": {
+            "status": body.status,
+            "percent": body.percent,
+            "phase": body.phase,
+            "error": body.error,
+        },
+    })
+    return {"ok": True}
 
 
 @router.post("/job/{job_id}/output")
-async def report_output(job_id: str):
-    raise HTTPException(status.HTTP_501_NOT_IMPLEMENTED)
+async def report_output(job_id: UUID, body: JobOutput, db: DbSession):
+    render = await db.get(Render, job_id)
+    if not render:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Render not found")
+
+    existing = list(render.output_file_ids or [])
+    for fid in body.fileIds:
+        if fid not in existing:
+            existing.append(fid)
+    render.output_file_ids = existing
+    await db.commit()
+    return {"ok": True, "count": len(existing)}

@@ -2,9 +2,59 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://renderstudio.internal/schemas/style.json",
   "title": "StyleSchema",
-  "description": "Placeholder — run `make sync-schema` to regenerate from backend Pydantic model.",
   "type": "object",
-  "properties": {},
-  "x-generated-by": "placeholder",
-  "x-source-of-truth": "backend/app/schemas/style.py"
+  "x-source-of-truth": "backend/app/schemas/style.py",
+  "$defs": {
+    "Finish": { "enum": ["matte","satin","gloss"], "type": "string" },
+    "Tone":   { "enum": ["light","medium","dark"], "type": "string" },
+    "Ambient":{ "enum": ["soft","hard","overcast","golden-hour"], "type": "string" },
+    "Direction": { "enum": ["N","NE","E","SE","S","SW","W","NW"], "type": "string" },
+    "CameraType": { "enum": ["eye-level","axonometric","aerial","custom"], "type": "string" },
+    "FurnitureLanguage": {
+      "enum": ["nordic-minimal","wabi-sabi","industrial","modern","luxury","american-country","french"],
+      "type": "string"
+    },
+    "Material": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type":   { "type": "string", "description": "oak, latex_paint, marble ..." },
+        "finish": { "$ref": "#/$defs/Finish", "default": "matte" },
+        "tone":   { "$ref": "#/$defs/Tone",   "default": "medium" },
+        "color":  { "oneOf": [{"type":"string","pattern":"^#[0-9A-Fa-f]{6}$"},{"type":"null"}], "default": null }
+      }
+    },
+    "Lighting": {
+      "type": "object",
+      "required": ["sun_kelvin","direction","intensity","ambient"],
+      "properties": {
+        "sun_kelvin": { "type": "integer", "minimum": 2500, "maximum": 10000 },
+        "direction":  { "$ref": "#/$defs/Direction" },
+        "intensity":  { "type": "number", "minimum": 0, "maximum": 3 },
+        "ambient":    { "$ref": "#/$defs/Ambient" }
+      }
+    },
+    "Camera": {
+      "type": "object",
+      "properties": {
+        "type":      { "$ref": "#/$defs/CameraType", "default": "eye-level" },
+        "fov":       { "type": "integer", "default": 50 },
+        "height_mm": { "type": "integer", "default": 1600 }
+      }
+    }
+  },
+  "required": ["color_palette","floor","wall","ceiling","lighting","furniture_language"],
+  "properties": {
+    "color_palette": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
+      "minItems": 3, "maxItems": 5
+    },
+    "floor":              { "$ref": "#/$defs/Material" },
+    "wall":               { "$ref": "#/$defs/Material" },
+    "ceiling":            { "$ref": "#/$defs/Material" },
+    "lighting":           { "$ref": "#/$defs/Lighting" },
+    "furniture_language": { "$ref": "#/$defs/FurnitureLanguage" },
+    "camera":             { "$ref": "#/$defs/Camera" }
+  }
 }

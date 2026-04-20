@@ -28,6 +28,12 @@ class SpaceOut(ORMModel):
     created_at: datetime
 
 
+class CreateSpaceRequest(BaseModel):
+    name: str
+    planFileId: UUID | None = None
+    elevationFileId: UUID | None = None
+
+
 class FileOut(ORMModel):
     id: UUID
     s3_key: str
@@ -41,6 +47,12 @@ class StyleOut(ORMModel):
     kind: str
     schema_json: dict[str, Any]
     created_at: datetime
+
+
+class CreateStyleRequest(BaseModel):
+    name: str
+    kind: str = "personal"
+    schema_json: dict[str, Any]
 
 
 class RenderOut(ORMModel):
@@ -69,11 +81,23 @@ class PresignResponse(BaseModel):
     expiresAt: datetime
 
 
+class UploadCompleteRequest(BaseModel):
+    fileId: UUID
+    filename: str
+    kind: str
+    sizeBytes: int | None = None
+    sha256: str | None = None
+
+
 class JobReport(BaseModel):
     status: str
     phase: str | None = None
     percent: int = 0
     error: str | None = None
+
+
+class JobOutput(BaseModel):
+    fileIds: list[UUID]
 
 
 class AgentRegisterRequest(BaseModel):
@@ -94,3 +118,9 @@ class AgentHeartbeat(BaseModel):
     cpu: float
     gpu: float | None = None
     diskFree: int | None = None
+
+
+class SessionResponse(BaseModel):
+    userId: UUID | None
+    email: str
+    role: str
