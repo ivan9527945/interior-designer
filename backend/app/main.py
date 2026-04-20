@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import get_settings
-from app.routers import agents, auth, projects, renders, spaces, stream, style, uploads
+from app.routers import agents, auth, projects, renders, share, spaces, stream, style, uploads
 
 settings = get_settings()
 
@@ -26,7 +26,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["http://localhost:3000", "http://localhost:3001"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -40,6 +40,7 @@ app.include_router(style.router)
 app.include_router(renders.router)
 app.include_router(agents.router)
 app.include_router(stream.router)
+app.include_router(share.router)
 
 
 @app.get("/healthz", tags=["system"])

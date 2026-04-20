@@ -31,6 +31,9 @@ class Settings(BaseSettings):
 
     LOG_LEVEL: str = "INFO"
 
+    SLACK_WEBHOOK_URL: str | None = None
+    SHARE_BASE_URL: str = "http://localhost:3001"
+
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:

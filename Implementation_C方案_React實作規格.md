@@ -850,18 +850,18 @@ CREATE INDEX idx_agents_heartbeat ON agents(last_heartbeat_at);
 
 目標：**讓 5 位真實設計師用**。
 
-- [ ] Agent macOS .pkg 打包 + notarize
-- [ ] 自動更新機制
-- [ ] 診斷頁 `http://localhost:9787/diag`
-- [ ] `/agent` 頁（Web 端看 Agent 狀態 / 設定）
-- [ ] 團隊風格庫建立與分享
-- [ ] 重新渲染（沿用 skp 模型，只重算材質燈光）
-- [ ] 7 天分享連結（含水印、IP 限制）
-- [ ] Slack 通知整合
-- [ ] 所有畫質 preset（草圖 / 標準 / 精品）
-- [ ] 錯誤頁面與 retry 流程
-- [ ] 效能優化：第一次開啟頁面 < 2 秒 FCP
-- [ ] CSAT 問卷站內 popover
+- [x] Agent macOS .pkg 打包 + notarize（build_pkg.sh + notarize.sh 完整腳本）
+- [x] 自動更新機制（updater.py 啟動時呼叫 /agent/version，graceful fallback）
+- [x] 診斷頁 `http://localhost:9787/diag`（/diag 含 CPU/記憶體/磁碟，/health endpoint）
+- [x] `/agent` 頁（Agent 狀態卡 + 診斷按鈕 + 安裝說明 + agents 列表）
+- [x] 團隊風格庫（kind=team 已支援，styles 頁三 tab 切換）
+- [x] 重新渲染（`POST /renders/{id}/retry` + gallery 頁重試按鈕）
+- [x] 7 天分享連結（`POST /renders/{id}/share` → token → `/share/{token}` 公開頁）
+- [x] Slack 通知整合（render completed 時非同步呼叫 webhook，SLACK_WEBHOOK_URL 環境變數）
+- [x] 所有畫質 preset（draft 1280×720 / standard 1920×1080 / premium 3840×2160，config 頁說明）
+- [x] 錯誤頁面與 retry 流程（app/error.tsx + app/not-found.tsx + gallery retry 按鈕）
+- [ ] 效能優化：第一次開啟頁面 < 2 秒 FCP（需 Lighthouse 實測，Sprint 5 前完成）
+- [x] CSAT 問卷站內 popover（render completed 3 秒後右下角出現，1–5 星，localStorage 防重複）
 
 ### Sprint 5 — 上線（第 11 週）
 

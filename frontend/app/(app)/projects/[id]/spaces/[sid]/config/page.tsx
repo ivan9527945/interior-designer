@@ -14,23 +14,27 @@ const QUALITY_OPTIONS: {
   key: Quality;
   label: string;
   description: string;
+  spec: string;
   badge?: string;
 }[] = [
   {
     key: "draft",
     label: "草稿",
     description: "快速預覽，低解析度，適合確認構圖與風格方向。",
+    spec: "1280×720 · 4 samples · ~5 分鐘",
   },
   {
     key: "standard",
     label: "標準",
     description: "平衡速度與品質，適合一般提案使用。",
+    spec: "1920×1080 · 16 samples · ~15 分鐘",
     badge: "推薦",
   },
   {
     key: "premium",
     label: "精品",
     description: "最高解析度，細節豐富，適合最終交付或印刷輸出。",
+    spec: "3840×2160 · 64 samples · ~60 分鐘",
   },
 ];
 
@@ -92,6 +96,7 @@ export default function SpaceConfigPage() {
                 )}
               </div>
               <p className="text-xs text-muted-foreground">{opt.description}</p>
+              <p className="mt-1 font-mono text-xs text-muted-foreground/70">{opt.spec}</p>
             </label>
           ))}
         </div>

@@ -17,6 +17,7 @@ from app.schemas.common import (
     JobReport,
 )
 from app.services.job_dispatcher import pop
+from app.services.slack import notify_slack
 from app.services.sse_broker import publish
 
 router = APIRouter(prefix="/agent", tags=["agent"])
@@ -75,6 +76,15 @@ async def report_job(job_id: UUID, body: JobReport, db: DbSession):
         render.started_at = datetime.now(UTC)
 
     await db.commit()
+
+    if body.status == "completed":
+        import asyncio
+        asyncio.create_task(
+            notify_slack(
+                render_id=str(job_id),
+                message=f":white_check_mark: Render `{job_id}` 已完成渲染。",
+            )
+        )
 
     await publish(str(job_id), {
         "event": body.status if body.status in ("completed", "error", "cancelled") else "progress",

@@ -1,10 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { rendersApi, type RenderRecord } from "@/lib/api";
 import { useRenderProgress } from "@/hooks/useRenderProgress";
 import { useRenderQueueStore } from "@/stores/useRenderQueueStore";
+import { ShareDialog } from "@/components/gallery/ShareDialog";
+import { CsatPopover } from "@/components/render/CsatPopover";
 
 const MINIO_BASE = process.env.NEXT_PUBLIC_MINIO_ENDPOINT || "http://localhost:9000";
 
@@ -17,6 +20,7 @@ function statusColor(status: string) {
 export default function RenderDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
+  const [shareOpen, setShareOpen] = useState(false);
 
   const { data: render, isLoading } = useQuery<RenderRecord>({
     queryKey: ["renders", id],
@@ -31,6 +35,13 @@ export default function RenderDetailPage() {
   useRenderProgress(render ? id : null);
   const progress = useRenderQueueStore((s) => s.byId[id]);
 
+  const retryMutation = useMutation({
+    mutationFn: () => rendersApi.retry(id),
+    onSuccess: (newRender) => {
+      router.push(`/gallery/${newRender.id}`);
+    },
+  });
+
   if (isLoading) {
     return <div className="p-6 text-sm text-muted-foreground">載入中…</div>;
   }
@@ -41,6 +52,9 @@ export default function RenderDetailPage() {
   const liveStatus = progress?.status ?? render.status;
   const livePercent = progress?.percent ?? render.phase_percent;
   const outputIds = render.output_file_ids;
+
+  const canRetry = liveStatus === "error" || liveStatus === "cancelled";
+  const canShare = liveStatus === "completed";
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
@@ -110,6 +124,37 @@ export default function RenderDetailPage() {
         </dl>
       </div>
 
+      {/* 行動按鈕列（在 output images 之前） */}
+      {(canRetry || canShare) && (
+        <div className="flex flex-wrap gap-3">
+          {canRetry && (
+            <button
+              type="button"
+              disabled={retryMutation.isPending}
+              onClick={() => retryMutation.mutate()}
+              className="rounded-md border border-amber-400 bg-amber-50 px-4 py-2 text-sm font-medium text-amber-700 hover:bg-amber-100 disabled:opacity-50 dark:bg-amber-950/30 dark:text-amber-400"
+            >
+              {retryMutation.isPending ? "重試中…" : "重試"}
+            </button>
+          )}
+          {retryMutation.isError && (
+            <span className="self-center text-sm text-destructive">
+              重試失敗：{(retryMutation.error as Error)?.message ?? "請稍後再試"}
+            </span>
+          )}
+
+          {canShare && (
+            <button
+              type="button"
+              onClick={() => setShareOpen(true)}
+              className="rounded-md border border-sky-400 bg-sky-50 px-4 py-2 text-sm font-medium text-sky-700 hover:bg-sky-100 dark:bg-sky-950/30 dark:text-sky-400"
+            >
+              分享
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Output images */}
       {outputIds.length > 0 ? (
         <div className="space-y-4">
@@ -150,6 +195,16 @@ export default function RenderDetailPage() {
           渲染完成但尚無輸出檔案。
         </div>
       ) : null}
+
+      {/* Share Dialog */}
+      <ShareDialog
+        renderId={id}
+        open={shareOpen}
+        onClose={() => setShareOpen(false)}
+      />
+
+      {/* CSAT Popover — 只在 completed 時顯示 */}
+      {liveStatus === "completed" && <CsatPopover renderId={id} />}
     </div>
   );
 }

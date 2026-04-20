@@ -181,6 +181,12 @@ async def main() -> None:
     except Exception as _e:
         log.warning("sync_materials_failed", error=str(_e))
 
+    from renderstudio_agent.updater import check_for_updates  # noqa: PLC0415
+    try:
+        await check_for_updates()
+    except Exception as e:
+        log.warning("update_check_failed", error=str(e))
+
     diag_server = await start_diag_server()
     heartbeat_task = asyncio.create_task(heartbeat_loop(client, agent_id))
 

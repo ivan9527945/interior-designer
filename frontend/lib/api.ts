@@ -69,6 +69,12 @@ export const projectsApi = {
     api.get<Space[]>(`/projects/${projectId}/spaces`).then((r) => r.data),
 };
 
+export interface ShareResponse {
+  token: string;
+  url: string;
+  expiresAt: string;
+}
+
 export const rendersApi = {
   list: (params?: { renderStatus?: string; spaceId?: string }) =>
     api.get<RenderRecord[]>("/renders", { params }).then((r) => r.data),
@@ -76,6 +82,11 @@ export const rendersApi = {
     api.post<RenderRecord>("/renders", body).then((r) => r.data),
   get: (id: string) => api.get<RenderRecord>(`/renders/${id}`).then((r) => r.data),
   cancel: (id: string) => api.delete(`/renders/${id}`),
+  retry: (id: string) => api.post<RenderRecord>(`/renders/${id}/retry`).then((r) => r.data),
+  createShare: (id: string) =>
+    api.post<ShareResponse>(`/renders/${id}/share`).then((r) => r.data),
+  getShare: (id: string) =>
+    api.get<ShareResponse>(`/renders/${id}/share`).then((r) => r.data),
 };
 
 export const stylesApi = {
@@ -100,4 +111,11 @@ export interface AgentStatusResponse {
 
 export const agentsApi = {
   status: () => api.get<AgentStatusResponse>("/agent/status").then((r) => r.data),
+};
+
+export const publicApi = {
+  getShare: (token: string) =>
+    api
+      .get<{ render: RenderRecord; expiresAt: string }>(`/share/${token}`)
+      .then((r) => r.data),
 };
