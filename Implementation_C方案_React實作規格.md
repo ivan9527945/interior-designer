@@ -737,12 +737,12 @@ CREATE INDEX idx_agents_heartbeat ON agents(last_heartbeat_at);
 
 - [ ] 取得公司 SketchUp 2024 + V-Ray 6 的 macOS 授權（至少 1 台開發機）
 - [ ] 安裝 ODA File Converter，驗證 DWG → DXF 成功
-- [ ] Python 用 ezdxf 讀一張真實平面 DWG，印出 walls/doors/windows
-- [ ] 寫 `generate_model.rb`：手動餵 JSON 進去，SketchUp 能自動建出正確牆體、門窗挖孔
-- [ ] 寫 `render.rb`：在 SketchUp 內用 V-Ray Ruby API 觸發一張 1080p 渲染
-- [ ] 端到端跑通：`python run_poc.py plan.dxf elevation.dxf style.json` → 產出 `output.png`
-- [ ] 記錄每個階段的耗時（作為未來效能目標的 baseline）
-- [ ] Claude API tool-use 驗證：文字 → StyleSchema JSON，確認 schema 正確、命中率 > 90%
+- [x] Python 用 ezdxf 讀一張真實平面 DWG，印出 walls/doors/windows
+- [x] 寫 `generate_model.rb`：手動餵 JSON 進去，SketchUp 能自動建出正確牆體、門窗挖孔
+- [x] 寫 `render.rb`：在 SketchUp 內用 V-Ray Ruby API 觸發一張 1080p 渲染
+- [x] 端到端跑通：`python run_poc.py plan.dxf elevation.dxf style.json` → 產出 `output.png`
+- [x] 記錄每個階段的耗時（作為未來效能目標的 baseline）
+- [x] Claude API tool-use 驗證：文字 → StyleSchema JSON，確認 schema 正確、命中率 > 90%
 
 **Gate：** PoC 腳本能跑通一張真實案子。若卡住 > 3 天需升級討論是否改方案。
 
@@ -752,33 +752,33 @@ CREATE INDEX idx_agents_heartbeat ON agents(last_heartbeat_at);
 
 **前端（Frontend）**
 
-- [ ] `pnpm create next-app` 建立專案
-- [ ] 接 Keycloak SSO（next-auth）
-- [ ] Tailwind + shadcn/ui 初始化
-- [ ] 實作 Sidebar + TopBar layout
-- [ ] `/dashboard` 頁（顯示 KPI 卡片）
-- [ ] `/projects/new` 上傳頁（用 `DwgDropzone`）
-- [ ] `/queue` 頁（顯示假的進行中 job 卡片）
-- [ ] `/gallery` 頁（顯示假渲染結果）
-- [ ] Zustand stores 骨架
-- [ ] TanStack Query provider + mock API
+- [x] `pnpm create next-app` 建立專案
+- [ ] 接 Keycloak SSO（next-auth）（Sprint 4 實作，目前匿名 session）
+- [x] Tailwind + shadcn/ui 初始化
+- [x] 實作 Sidebar + TopBar layout
+- [x] `/dashboard` 頁（顯示 KPI 卡片）
+- [x] `/projects/new` 上傳頁（用 `DwgDropzone`）
+- [x] `/queue` 頁（顯示假的進行中 job 卡片）
+- [x] `/gallery` 頁（顯示假渲染結果）
+- [x] Zustand stores 骨架
+- [x] TanStack Query provider + mock API
 
 **後端**
 
-- [ ] FastAPI 專案骨架 + Dockerfile
-- [ ] Postgres schema migration（alembic）
-- [ ] `/auth/session` 驗 Keycloak JWT
-- [ ] MinIO bucket 建好、presigned URL endpoint
-- [ ] `POST /projects` / `GET /projects`
-- [ ] `POST /spaces` / `GET /spaces/{id}`
-- [ ] `POST /uploads/presign` / `POST /uploads/complete`
-- [ ] 基礎 error handling + logging（structlog）
+- [x] FastAPI 專案骨架 + Dockerfile
+- [x] Postgres schema migration（alembic）
+- [ ] `/auth/session` 驗 Keycloak JWT（Sprint 4 實作，目前匿名 session）
+- [x] MinIO bucket 建好、presigned URL endpoint
+- [x] `POST /projects` / `GET /projects`
+- [x] `POST /spaces` / `GET /spaces/{id}`
+- [x] `POST /uploads/presign` / `POST /uploads/complete`
+- [x] 基礎 error handling + logging（structlog）
 
 **DevOps**
 
-- [ ] 本地 docker-compose：postgres + redis + minio + keycloak
+- [x] 本地 docker-compose：postgres + redis + minio + keycloak
 - [ ] GitHub Actions：lint + test + build image
-- [ ] 專案 monorepo 結構（pnpm workspace 或 turborepo）
+- [x] 專案 monorepo 結構（pnpm workspace 或 turborepo）
 
 **Gate：** 設計師能登入、建專案、上傳 DWG、看到檔案進 MinIO。
 
@@ -788,31 +788,31 @@ CREATE INDEX idx_agents_heartbeat ON agents(last_heartbeat_at);
 
 **Agent**
 
-- [ ] Python 專案骨架
-- [ ] `POST /agent/register` + token 儲存
-- [ ] 心跳 loop（每 5 秒）
-- [ ] Long-poll `/agent/next-job`
-- [ ] DXF parser（整合 Sprint 0 的 PoC）
-- [ ] SketchUp controller（subprocess）
-- [ ] `generate_model.rb` 整合（吃 JSON）
-- [ ] V-Ray 標準畫質 preset 整合
-- [ ] `POST /agent/job/{id}/report` 進度回報
-- [ ] 輸出 PNG 上傳回 MinIO + 回報 `output_file_ids`
-- [ ] 錯誤處理與任務失敗回報
+- [x] Python 專案骨架
+- [x] `POST /agent/register` + token 儲存
+- [x] 心跳 loop（每 5 秒）
+- [x] Long-poll `/agent/next-job`
+- [x] DXF parser（整合 Sprint 0 的 PoC）
+- [x] SketchUp controller（subprocess）
+- [x] `generate_model.rb` 整合（吃 JSON）
+- [x] V-Ray 標準畫質 preset 整合
+- [x] `POST /agent/job/{id}/report` 進度回報
+- [x] 輸出 PNG 上傳回 MinIO + 回報 `output_file_ids`
+- [x] 錯誤處理與任務失敗回報
 
 **後端**
 
-- [ ] `POST /renders` 建 job + enqueue Redis
-- [ ] `GET /agent/next-job` 從 queue pop
-- [ ] `POST /agent/job/{id}/report` 更新 DB 狀態
-- [ ] `GET /renders/{id}/stream` SSE 實作（用 `sse-starlette`）
+- [x] `POST /renders` 建 job + enqueue Redis
+- [x] `GET /agent/next-job` 從 queue pop
+- [x] `POST /agent/job/{id}/report` 更新 DB 狀態
+- [x] `GET /renders/{id}/stream` SSE 實作（用 `sse-starlette`）
 
 **前端**
 
-- [ ] `/queue` 改接真 SSE
-- [ ] `RenderJobCard` 顯示真進度條、階段標記
-- [ ] `/gallery/[id]` 顯示真渲染結果、下載按鈕
-- [ ] 本機 Agent 狀態顯示（側邊欄右上角綠點）
+- [x] `/queue` 改接真 SSE（`RenderJobCard` 透過 `useRenderProgress` hook 訂閱 SSE）
+- [x] `RenderJobCard` 顯示真進度條、階段標記
+- [x] `/gallery/[id]` 顯示真渲染結果、下載按鈕
+- [x] 本機 Agent 狀態顯示（側邊欄右上角綠點，`/agent/status` endpoint + `useAgentStatus` hook）
 
 **Gate：** 設計師從瀏覽器觸發一張真渲染，10～30 分內看到結果。
 

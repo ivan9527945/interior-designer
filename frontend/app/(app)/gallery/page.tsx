@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { rendersApi, type RenderRecord } from "@/lib/api";
 
@@ -12,10 +13,10 @@ function RenderCard({ render }: { render: RenderRecord }) {
     : null;
 
   return (
-    <div className="rounded-lg border overflow-hidden">
+    <Link href={`/gallery/${render.id}`} className="group block rounded-lg border overflow-hidden hover:shadow-md transition-shadow">
       {previewUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={previewUrl} alt="渲染結果" className="w-full aspect-video object-cover" />
+        <img src={previewUrl} alt="渲染結果" className="w-full aspect-video object-cover group-hover:opacity-95 transition-opacity" />
       ) : (
         <div className="w-full aspect-video bg-muted flex items-center justify-center text-xs text-muted-foreground">
           無預覽圖
@@ -35,13 +36,15 @@ function RenderCard({ render }: { render: RenderRecord }) {
               className="text-xs text-primary underline"
               target="_blank"
               rel="noreferrer"
+              onClick={(e) => e.stopPropagation()}
             >
               下載
             </a>
           )}
+          <span className="text-xs text-muted-foreground">→ 詳情</span>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
 

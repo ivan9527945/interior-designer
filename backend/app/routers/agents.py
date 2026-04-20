@@ -1,8 +1,9 @@
 import secrets
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, status
+from sqlalchemy import select
 
 from app.deps import DbSession
 from app.models.agent import Agent
@@ -100,3 +101,25 @@ async def report_output(job_id: UUID, body: JobOutput, db: DbSession):
     render.output_file_ids = existing
     await db.commit()
     return {"ok": True, "count": len(existing)}
+
+
+@router.get("/status")
+async def agent_status(db: DbSession):
+    """回傳最近 30 秒內有心跳的 agents（供前端顯示綠點）。"""
+    cutoff = datetime.now(UTC) - timedelta(seconds=30)
+    result = await db.execute(
+        select(Agent).where(Agent.last_heartbeat_at >= cutoff)
+    )
+    agents = result.scalars().all()
+    return {
+        "online": len(agents) > 0,
+        "count": len(agents),
+        "agents": [
+            {
+                "id": str(a.id),
+                "machineName": a.machine_name,
+                "lastHeartbeat": a.last_heartbeat_at.isoformat() if a.last_heartbeat_at else None,
+            }
+            for a in agents
+        ],
+    }

@@ -63,3 +63,5 @@ agent/installer/build/
 agent/installer/dist/
 # Alembic autogen temp
 backend/alembic/versions/*_autogen_*.py
+backend/dev.db
+frontend/tsconfig.tsbuildinfo

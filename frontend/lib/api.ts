@@ -83,3 +83,13 @@ export const stylesApi = {
   create: (body: { name: string; kind: string; schema_json: Record<string, unknown> }) =>
     api.post<StyleRecord>("/styles", body).then((r) => r.data),
 };
+
+export interface AgentStatusResponse {
+  online: boolean;
+  count: number;
+  agents: { id: string; machineName: string | null; lastHeartbeat: string | null }[];
+}
+
+export const agentsApi = {
+  status: () => api.get<AgentStatusResponse>("/agent/status").then((r) => r.data),
+};
