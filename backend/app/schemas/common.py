@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class ORMModel(BaseModel):
@@ -42,17 +42,18 @@ class FileOut(ORMModel):
 
 
 class StyleOut(ORMModel):
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
     id: UUID
     name: str
     kind: str
-    schema_json: dict[str, Any]
+    schema_json: dict[str, Any] = Field(alias="schema_json")
     created_at: datetime
 
 
 class CreateStyleRequest(BaseModel):
     name: str
     kind: str = "personal"
-    schema_json: dict[str, Any]
+    schema_json: dict[str, Any] = Field(alias="schema_json")
 
 
 class RenderOut(ORMModel):
